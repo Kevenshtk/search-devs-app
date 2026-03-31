@@ -22,7 +22,7 @@ const Home = () => {
         </Heading>
         
         <Flex gap={4}>
-          <InputGroup flex="1" startElement={<CiSearch />}>
+          <InputGroup flex="1" startElement={<CiSearch color="#A0AEC0" />}>
             <Input
               value={userName}
               onChange={(event) => setUserName(event.target.value)}
