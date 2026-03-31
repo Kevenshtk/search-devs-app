@@ -13,10 +13,10 @@ const getUser = async (username: string) => {
   }
 };
 
-export const getRepos = async (username: string, page = 1) => {
+export const getRepos = async (username: string, page = 1, sort = "updated") => {
   try {
     const response = await api.get(
-      `/users/${username}/repos?page=${page}&per_page=10`,
+      `/users/${username}/repos?page=${page}&per_page=10&sort=${sort}`,
     );
 
     const parsedData = z.array(repoSchema).parse(response.data);

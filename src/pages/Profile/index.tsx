@@ -9,6 +9,9 @@ import {
   Spinner,
   Link,
   Button,
+  Select,
+  createListCollection,
+  Portal,
 } from "@chakra-ui/react";
 
 import githubService from "../../services/githubService";
@@ -19,6 +22,15 @@ import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
 
 import { CiStar } from "react-icons/ci";
+
+const filters = createListCollection({
+  items: [
+    { label: "Recently updated", value: "updated" },
+    { label: "Recently created", value: "created" },
+    { label: "Recently pushed", value: "pushed" },
+    { label: "Name", value: "full_name" },
+  ],
+});
 
 const Profile = () => {
   const { username } = useParams();
@@ -31,7 +43,9 @@ const Profile = () => {
   const [loadingRepos, setLoadingRepos] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(false);
-  const isFetching  = useRef(false);
+  const isFetching = useRef(false);
+
+  const [value, setValue] = useState<string>("full_name");
 
   const fetchRepos = async (username: string, page: number) => {
     if (loadingRepos || !hasMore) {
@@ -43,7 +57,7 @@ const Profile = () => {
     isFetching.current = true;
 
     try {
-      const newRepos = await githubService.repos(username, page);
+      const newRepos = await githubService.repos(username, page, value);
 
       if (newRepos.length === 0) {
         setHasMore(false);
@@ -109,6 +123,16 @@ const Profile = () => {
     fetchRepos(username, page);
   }, [page, username]);
 
+  useEffect(() => {
+    if (!username) return;
+
+    setRepos([]);
+    setPage(1);
+    setHasMore(true);
+
+    fetchRepos(username, 1);
+  }, [value]);
+
   if (error) {
     return (
       <Box minH="100vh" bg="#F8F9FC">
@@ -155,47 +179,95 @@ const Profile = () => {
         >
           <Sidebar user={user} />
 
-          <Box bg="white" borderRadius="md" shadow="sm">
-            {repos?.map((repo, index) => (
-              <Box key={index}>
-                <Box p={8}>
-                  <Heading as="h3" size="md" color="gray.800" mb={3}>
-                    <Link
-                      href={repo.html_url}
-                      target="_blank"
-                      _hover={{ textDecoration: "underline" }}
+          <Flex direction="column" gap={4}>
+            <Flex justify="flex-end">
+              <Select.Root
+                collection={filters}
+                width="240px"
+                value={value}
+                onValueChange={(e) => setValue(e.value[0])}
+                bg="white"
+                borderRadius="md"
+                shadow="sm"
+              >
+                <Select.HiddenSelect />
+                <Select.Label display="none">Sort by:</Select.Label>
+                <Select.Control>
+                  <Select.Trigger>
+                    <Select.ValueText
+                      placeholder={
+                        filters.items.filter(
+                          (filter) => filter.value === value,
+                        )[0]?.label || "Select sort"
+                      }
+                    />
+                  </Select.Trigger>
+                  <Select.IndicatorGroup>
+                    <Select.Indicator />
+                  </Select.IndicatorGroup>
+                </Select.Control>
+                <Portal>
+                  <Select.Positioner>
+                    <Select.Content>
+                      {filters.items.map((filter) => (
+                        <Select.Item item={filter} key={filter.value}>
+                          {filter.label}
+                          <Select.ItemIndicator />
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Positioner>
+                </Portal>
+              </Select.Root>
+            </Flex>
+
+            <Box bg="white" borderRadius="md" shadow="sm">
+              {repos?.map((repo, index) => (
+                <Box key={index}>
+                  <Box p={8}>
+                    <Heading as="h3" size="md" color="gray.800" mb={3}>
+                      <Link
+                        href={repo.html_url}
+                        target="_blank"
+                        _hover={{ textDecoration: "underline" }}
+                      >
+                        {repo.name}
+                      </Link>
+                    </Heading>
+                    <Text
+                      color="gray.600"
+                      fontSize="sm"
+                      mb={4}
+                      lineHeight="tall"
                     >
-                      {repo.name}
-                    </Link>
-                  </Heading>
-                  <Text color="gray.600" fontSize="sm" mb={4} lineHeight="tall">
-                    {repo.description}
-                  </Text>
-                  <Flex align="center" gap={2} color="gray.500" fontSize="sm">
-                    <CiStar /> <Text>{repo.stargazers_count}</Text>
-                    <Text mx={2}>•</Text>
-                    <Text>
-                      Atualizado {githubService.relativeTime(repo.updated_at)}
+                      {repo.description}
+                    </Text>
+                    <Flex align="center" gap={2} color="gray.500" fontSize="sm">
+                      <CiStar /> <Text>{repo.stargazers_count}</Text>
+                      <Text mx={2}>•</Text>
+                      <Text>
+                        Atualizado {githubService.relativeTime(repo.updated_at)}
+                      </Text>
+                    </Flex>
+                  </Box>
+                  {index < repos.length - 1 && (
+                    <Box borderBottomWidth="1px" borderColor="gray.200" />
+                  )}
+                </Box>
+              ))}
+
+              {loadingRepos && hasMore && (
+                <Box py={8}>
+                  <Flex justify="center" align="center" gap={3} color="#8a2be2">
+                    <Spinner size="sm" />
+                    <Text fontWeight="medium" fontSize="sm">
+                      Loading more repos...
                     </Text>
                   </Flex>
                 </Box>
-                {index < repos.length - 1 && (
-                  <Box borderBottomWidth="1px" borderColor="gray.200" />
-                )}
-              </Box>
-            ))}
-
-            {loadingRepos && hasMore && (
-              <Box py={8}>
-                <Flex justify="center" align="center" gap={3} color="#8a2be2">
-                  <Spinner size="sm" />
-                  <Text fontWeight="medium" fontSize="sm">
-                    Loading more repos...
-                  </Text>
-                </Flex>
-              </Box>
-            )}
-          </Box>
+              )}
+            </Box>
+          </Flex>
         </Grid>
       </Box>
     </Box>
