@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const userSchema = z.object({
-  avatar_url: z.string(),
+  avatar_url: z.string().url(),
   name: z.string().nullable(),
   login: z.string(),
   bio: z.string().nullable(),
@@ -9,8 +9,8 @@ export const userSchema = z.object({
   following: z.number(),
   company: z.string().nullable(),
   location: z.string().nullable(),
-  email: z.string().nullable(),
-  blog: z.string(),
+  email: z.string().email().nullable(),
+  blog: z.string().nullable().optional(),
   twitter_username: z.string().nullable(),
 });
 
