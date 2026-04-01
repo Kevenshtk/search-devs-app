@@ -1,8 +1,18 @@
-import { Flex, Heading, Text, Input, InputGroup } from "@chakra-ui/react";
-import { CiSearch } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import {
+  Flex,
+  Heading,
+  Text,
+  Input,
+  InputGroup,
+  Box,
+  Grid,
+} from "@chakra-ui/react";
+
 import LanguageSwitcher from "../LanguageSwitcher";
+
+import { CiSearch } from "react-icons/ci";
 
 type NavbarProps = {
   username: string | undefined;
@@ -21,52 +31,57 @@ const Navbar = ({ username, searchQuery, setSearchQuery }: NavbarProps) => {
   };
 
   return (
-    <Flex
-      as="nav"
-      bg="white"
-      w="100%"
-      px={{ base: 4, md: 8 }}
-      py={4}
-      align="center"
-      justify="space-between"
-      shadow="sm"
-    >
-      <Heading
-        as="h1"
-        fontSize="2xl"
-        cursor="pointer"
-        onClick={() => navigate("/")}
-        fontWeight="medium"
-        flexShrink={0}
+    <Box as="nav" bg="#FFFFFF" w="100%">
+      <Grid
+        templateColumns={{ base: "1fr", lg: "300px 1fr" }}
+        gap={8}
+        maxW="1200px"
+        mx="auto"
+        px={4}
+        py={4}
+        alignItems="center"
       >
-        <Text as="span" color="#005ce6" mr={2}>
-          Search
-        </Text>
-        <Text as="span" color="#8a2be2">
-          d_evs
-        </Text>
-      </Heading>
+        <Heading
+          as="h1"
+          fontSize={{ base: "xl", md: "2xl" }}
+          cursor="pointer"
+          onClick={() => navigate("/")}
+          fontWeight="medium"
+        >
+          <Text as="span" color="#005ce6" mr={{ base: 1, md: 2 }}>
+            Search
+          </Text>
+          <Text as="span" color="#8a2be2">
+            d_evs
+          </Text>
+        </Heading>
 
-      <Flex w="100%" maxW="600px" ml={4} align="center" gap={4}>
-        <InputGroup flex="1" startElement={<CiSearch color="#A0AEC0" />}>
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t("search")}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSearch();
-            }}
-            size="md"
-            bg="white"
-            borderRadius="md"
-            borderColor="#8a2be2"
-            _focus={{ borderColor: "#8a2be2", boxShadow: "0 0 0 1px #8a2be2" }}
-          />
-        </InputGroup>
-        
-        <LanguageSwitcher />
-      </Flex>
-    </Flex>
+        <Flex w="100%" align="center" gap={{ base: 2, md: 4 }}>
+          <InputGroup flex="1" startElement={<CiSearch color="#A0AEC0" />}>
+            <Input
+              aria-label={t("search")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("search")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+              size="md"
+              bg="white"
+              borderRadius="md"
+              border="1px solid #8a2be2"
+              _focus={{
+                outline: "none",
+                borderColor: "#8a2be2",
+                boxShadow: "0 0 0 1px #8a2be2",
+              }}
+            />
+          </InputGroup>
+
+          <LanguageSwitcher />
+        </Flex>
+      </Grid>
+    </Box>
   );
 };
 
