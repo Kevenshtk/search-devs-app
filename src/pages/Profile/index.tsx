@@ -138,28 +138,12 @@ const Profile = () => {
 
   if (error) {
     return (
-      <Box minH="100vh" bg="#F8F9FC">
-        <Flex py={20} justify="center" align="center" direction="column">
-          <Heading as="h2" size="lg" color="gray.800" mb={4}>
-            Nenhum usuário encontrado
-          </Heading>
-          <Text color="gray.600" mb={8} textAlign="center">
-            Não conseguimos encontrar nenhum usuário com o nome "{username}".
-          </Text>
-          <Button
-            onClick={() => navigate("/")}
-            size="lg"
-            bg="#8a2be2"
-            color="white"
-            _hover={{ bg: "#7A22C9" }}
-            borderRadius="md"
-            px={8}
-            shadow="sm"
-          >
-            Voltar para a Home
-          </Button>
-        </Flex>
-      </Box>
+      <ErrorState
+        title={t("usernot_found")}
+        description={`${t("usernot_foundDetail")} "${username}".`}
+        buttonLabel={t("return_to_home")}
+        onAction={() => navigate("/")}
+      />
     );
   }
 
