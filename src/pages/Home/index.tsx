@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Flex,
@@ -8,21 +10,21 @@ import {
   Button,
   InputGroup,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import { CiSearch } from "react-icons/ci";
 
-import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
+
+import { CiSearch } from "react-icons/ci";
 
 const Home = () => {
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const handleSearch = async (username: string) => {
-    if (!username.trim()) return;
+  const handleSearch = (username: string) => {
+    const trimmed = username.trim();
+    if (!trimmed) return;
 
-    navigate(`/profile/${username}`);
+    navigate(`/profile/${trimmed}`);
   };
 
   return (
@@ -45,14 +47,13 @@ const Home = () => {
       >
         <LanguageSwitcher />
       </Flex>
-      
 
-      <Box w="100%" maxW="600px" p={4}>
+      <Box w="100%" maxW="800px" p={4}>
         <Heading
           as="h1"
-          fontSize="6xl"
+          fontSize={{ base: "5xl", md: "8xl" }}
           textAlign="center"
-          mb={10}
+          mb={{ base: 10, md: 20 }}
           fontWeight="normal"
         >
           <Text as="span" color="#005ce6" mr={3}>
@@ -66,19 +67,20 @@ const Home = () => {
         <Flex gap={4}>
           <InputGroup flex="1" startElement={<CiSearch color="#A0AEC0" />}>
             <Input
+              aria-label={t("search")}
               value={userName}
-              onChange={(event) => setUserName(event.target.value)}
+              onChange={(e) => setUserName(e.target.value)}
               placeholder={t("search")}
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSearch(userName);
               }}
               size="lg"
-              bg="white"
               borderRadius="md"
               shadow="sm"
             />
           </InputGroup>
           <Button
+            disabled={!userName}
             onClick={() => handleSearch(userName)}
             size="lg"
             bg="#8a2be2"
