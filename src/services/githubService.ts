@@ -1,20 +1,32 @@
-import { api } from "./api";
 import { z } from "zod";
+
+import { api } from "./api";
+
 import { userSchema } from "../schemas/user.schema";
 import { repoSchema } from "../schemas/repo.schema";
-import type { TFunction } from "i18next";
 
-const getUser = async (username: string) => {
+import type { TFunction } from "i18next";
+import type { User } from "../schemas/user.schema";
+import type { Repo } from "../schemas/repo.schema";
+
+const getUser = async (
+  username: string,
+): Promise<{ success: boolean; data: User | null }> => {
   try {
     const response = await api.get(`/users/${username}`);
 
     return { success: true, data: userSchema.parse(response.data) };
-  } catch {
-    return { success: false, message: "User not found" };
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return { success: false, data: null };
   }
 };
 
-export const getRepos = async (username: string, page = 1, sort = "updated") => {
+export const getRepos = async (
+  username: string,
+  page = 1,
+  sort = "full_name",
+): Promise<{ success: boolean; data: Repo[] }> => {
   try {
     const response = await api.get(
       `/users/${username}/repos?page=${page}&per_page=10&sort=${sort}`,
@@ -22,19 +34,16 @@ export const getRepos = async (username: string, page = 1, sort = "updated") => 
 
     const parsedData = z.array(repoSchema).parse(response.data);
 
-    return parsedData;
+    return { success: true, data: parsedData };
   } catch (error) {
     console.error("Error fetching repos:", error);
-    throw error;
+    return { success: false, data: [] };
   }
 };
 
 export const getRelativeTime = (date: string, t: TFunction) => {
-  const now = new Date();
-  const updatedDate = new Date(date);
-
   const diffInSeconds = Math.floor(
-    (now.getTime() - updatedDate.getTime()) / 1000
+    (Date.now() - new Date(date).getTime()) / 1000,
   );
 
   const minutes = Math.floor(diffInSeconds / 60);
@@ -45,16 +54,14 @@ export const getRelativeTime = (date: string, t: TFunction) => {
   if (diffInSeconds < 60) return t("updated_now");
 
   if (minutes < 60)
-    return t(
-      minutes === 1 ? "updated_minutes" : "updated_minutes_plural",
-      { count: minutes }
-    );
+    return t(minutes === 1 ? "updated_minutes" : "updated_minutes_plural", {
+      count: minutes,
+    });
 
   if (hours < 24)
-    return t(
-      hours === 1 ? "updated_hours" : "updated_hours_plural",
-      { count: hours }
-    );
+    return t(hours === 1 ? "updated_hours" : "updated_hours_plural", {
+      count: hours,
+    });
 
   if (days < 7)
     return t(days === 1 ? "updated_days" : "updated_days_plural", {
