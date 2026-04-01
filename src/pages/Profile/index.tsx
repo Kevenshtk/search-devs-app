@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Grid,
@@ -8,13 +9,10 @@ import {
   Flex,
   Spinner,
   Link,
-  Button,
-  Select,
-  createListCollection,
-  Portal,
 } from "@chakra-ui/react";
 
 import githubService from "../../services/githubService";
+
 import type { User } from "../../schemas/user.schema";
 import type { Repo } from "../../schemas/repo.schema";
 
@@ -25,57 +23,83 @@ import ErrorState from "../../components/ErrorState";
 
 import { CiStar } from "react-icons/ci";
 
-import { useTranslation } from "react-i18next";
-
 const Profile = () => {
   const { username } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState(username || "");
+  const [error, setError] = useState(false);
 
   const [repos, setRepos] = useState<Repo[]>([]);
   const [page, setPage] = useState(1);
   const [loadingRepos, setLoadingRepos] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState(false);
   const isFetching = useRef(false);
 
   const [sortValue, setSortValue] = useState("full_name");
   const { t } = useTranslation();
 
-  const sorts = createListCollection({
-    items: [
-      { label: t("sortUpdated"), value: "updated" },
-      { label: t("sortCreated"), value: "created" },
-      { label: t("sortPushed"), value: "pushed" },
-      { label: t("sortName"), value: "full_name" },
-    ],
-  });
+  const loadingReposRef = useRef(false);
+  const hasMoreRef = useRef(true);
 
-  const fetchRepos = async (username: string, page: number) => {
-    if (loadingRepos || !hasMore) {
-      isFetching.current = false;
-      return;
-    }
+  useEffect(() => {
+    loadingReposRef.current = loadingRepos;
+  }, [loadingRepos]);
 
-    setLoadingRepos(true);
-    isFetching.current = true;
+  useEffect(() => {
+    hasMoreRef.current = hasMore;
+  }, [hasMore]);
 
-    try {
-      const newRepos = await githubService.repos(username, page, value);
-
-      if (newRepos.length === 0) {
-        setHasMore(false);
+  const fetchRepos = useCallback(
+    async (username: string, page: number, sort: string) => {
+      if (loadingReposRef.current || !hasMoreRef.current) {
+        isFetching.current = false;
+        return;
       }
 
-      setRepos((prev) => [...prev, ...newRepos]);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoadingRepos(false);
-      isFetching.current = false;
-    }
-  };
+      setLoadingRepos(true);
+      loadingReposRef.current = true;
+      isFetching.current = true;
+
+      try {
+        const results = await githubService.repos(username, page, sort);
+
+        const newRepos = results.data;
+
+        if (newRepos.length < 10) {
+          setHasMore(false);
+          hasMoreRef.current = false;
+        }
+
+        setRepos((prev) => {
+          const existingIds = new Set(prev.map((r) => r.id));
+          const filtered = newRepos.filter((r) => !existingIds.has(r.id));
+          return [...prev, ...filtered];
+        });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingRepos(false);
+        loadingReposRef.current = false;
+        isFetching.current = false;
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!username || page === 1) return;
+    fetchRepos(username, page, sortValue);
+  }, [page, username, sortValue, fetchRepos]);
+
+  useEffect(() => {
+    if (!username) return;
+    setRepos([]);
+    setPage(1);
+    setHasMore(true);
+    hasMoreRef.current = true;
+    fetchRepos(username, 1, sortValue);
+  }, [username, sortValue, fetchRepos]);
 
   useEffect(() => {
     if (!username) return;
@@ -84,24 +108,25 @@ const Profile = () => {
 
     const fetchData = async () => {
       const result = await githubService.user(username);
-
       if (!result.success) {
         setError(true);
         setUser(null);
         return;
       }
 
+      setError(false);
       setUser(result.data ?? null);
 
       setRepos([]);
       setPage(1);
       setHasMore(true);
+      hasMoreRef.current = true;
 
-      await fetchRepos(username, 1);
+      await fetchRepos(username, 1, sortValue);
     };
 
     fetchData();
-  }, [username]);
+  }, [username, sortValue, fetchRepos]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -121,23 +146,6 @@ const Profile = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [hasMore]);
 
-  useEffect(() => {
-    if (!username) return;
-    if (page === 1) return;
-
-    fetchRepos(username, page);
-  }, [page, username]);
-
-  useEffect(() => {
-    if (!username) return;
-
-    setRepos([]);
-    setPage(1);
-    setHasMore(true);
-
-    fetchRepos(username, 1);
-  }, [value]);
-
   if (error) {
     return (
       <ErrorState
@@ -150,7 +158,7 @@ const Profile = () => {
   }
 
   return (
-    <Box minH="100vh" bg="#F8F9FC">
+    <Box minH="100vh" bg="#FCFCFC">
       <Navbar
         username={username}
         searchQuery={searchQuery}
@@ -166,21 +174,22 @@ const Profile = () => {
           px={4}
           alignItems="start"
         >
-          <Sidebar user={user} />
+          {user && <Sidebar user={user} />}
 
           <Flex direction="column" gap={4}>
             <Flex justify="flex-end">
               <SortSelect currentSort={sortValue} setSortValue={setSortValue} />
             </Flex>
 
-            <Box bg="white" borderRadius="md" shadow="sm">
+            <Box bg="#FFFFFF" borderRadius="md">
               {repos?.map((repo, index) => (
-                <Box key={index}>
+                <Box key={repo.id}>
                   <Box p={8}>
                     <Heading as="h3" size="md" color="gray.800" mb={3}>
                       <Link
                         href={repo.html_url}
                         target="_blank"
+                        rel="noopener noreferrer"
                         _hover={{ textDecoration: "underline" }}
                       >
                         {repo.name}
@@ -192,7 +201,7 @@ const Profile = () => {
                       mb={4}
                       lineHeight="tall"
                     >
-                      {repo.description}
+                      {repo.description || t("no_description")}
                     </Text>
                     <Flex align="center" gap={2} color="gray.500" fontSize="sm">
                       <CiStar /> <Text>{repo.stargazers_count}</Text>
@@ -213,7 +222,7 @@ const Profile = () => {
                   <Flex justify="center" align="center" gap={3} color="#8a2be2">
                     <Spinner size="sm" />
                     <Text fontWeight="medium" fontSize="sm">
-                      {t("loadingRepos")}
+                      {t("loading_repos")}
                     </Text>
                   </Flex>
                 </Box>
