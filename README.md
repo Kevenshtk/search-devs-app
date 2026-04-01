@@ -29,21 +29,16 @@ Aplicação web desenvolvida em React que permite buscar usuários do GitHub e v
   * Mais antigos
   * Nome
   * Último push
+  
 * 🌍 Internacionalização (Português e Inglês)
 * ⚠️ Tratamento de erros (usuário não encontrado)
 * 🎨 Interface responsiva e moderna
 
 ---
 
-## 📸 Preview
-
-*(Opcional: adicione prints aqui depois)*
-
----
-
 ## 🔗 Acesse o projeto
 
-👉 https://teste-petize-nine.vercel.app
+👉 https://search-devs-app.vercel.app
 ---
 
 ## 🧠 Decisões técnicas
