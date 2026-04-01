@@ -1,5 +1,5 @@
 {
-  "name": "teste-petize",
+  "name": "search-devs-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -19,6 +19,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-i18next": "^17.0.2",
+    "react-icons": "^5.6.0",
     "react-router-dom": "^7.13.2",
     "zod": "^4.3.6"
   },

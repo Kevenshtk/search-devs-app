@@ -1,13 +1,15 @@
-
-import './App.css'
+import { BrowserRouter as Router } from "react-router-dom";
+import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+import MainRoutes from "./routes";
 
 function App() {
- 
 
   return (
-    <>
-     
-    </>
+    <ChakraProvider value={defaultSystem}>
+      <Router>
+        <MainRoutes />
+      </Router>
+    </ChakraProvider>
   )
 }
 
