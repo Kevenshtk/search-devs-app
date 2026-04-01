@@ -20,6 +20,8 @@ import type { Repo } from "../../schemas/repo.schema";
 
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
+import SortSelect from "../../components/SortSelect";
+import ErrorState from "../../components/ErrorState";
 
 import { CiStar } from "react-icons/ci";
 
@@ -38,7 +40,7 @@ const Profile = () => {
   const [error, setError] = useState(false);
   const isFetching = useRef(false);
 
-  const [value, setValue] = useState<string>("full_name");
+  const [sortValue, setSortValue] = useState("full_name");
   const { t } = useTranslation();
 
   const sorts = createListCollection({
@@ -168,42 +170,7 @@ const Profile = () => {
 
           <Flex direction="column" gap={4}>
             <Flex justify="flex-end">
-              <Select.Root
-                collection={sorts}
-                width="240px"
-                value={value}
-                onValueChange={(e) => setValue(e.value[0])}
-                bg="white"
-                borderRadius="md"
-                shadow="sm"
-              >
-                <Select.HiddenSelect />
-                <Select.Control>
-                  <Select.Trigger>
-                    <Select.ValueText
-                      placeholder={
-                        sorts.items.find((s) => s.value === value)
-                          ?.label || "Select sort"
-                      }
-                    />
-                  </Select.Trigger>
-                  <Select.IndicatorGroup>
-                    <Select.Indicator />
-                  </Select.IndicatorGroup>
-                </Select.Control>
-                <Portal>
-                  <Select.Positioner>
-                    <Select.Content>
-                      {sorts.items.map((sort) => (
-                        <Select.Item item={sort} key={sort.value}>
-                          {sort.label}
-                          <Select.ItemIndicator />
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Positioner>
-                </Portal>
-              </Select.Root>
+              <SortSelect currentSort={sortValue} setSortValue={setSortValue} />
             </Flex>
 
             <Box bg="white" borderRadius="md" shadow="sm">
