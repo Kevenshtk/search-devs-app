@@ -1,6 +1,8 @@
-import { Box, Flex, Heading, Text, Input, InputGroup } from "@chakra-ui/react";
+import { Flex, Heading, Text, Input, InputGroup } from "@chakra-ui/react";
 import { CiSearch } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../LanguageSwitcher";
 
 type NavbarProps = {
   username: string | undefined;
@@ -10,6 +12,7 @@ type NavbarProps = {
 
 const Navbar = ({ username, searchQuery, setSearchQuery }: NavbarProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSearch = () => {
     if (searchQuery.trim() && searchQuery !== username) {
@@ -44,12 +47,12 @@ const Navbar = ({ username, searchQuery, setSearchQuery }: NavbarProps) => {
         </Text>
       </Heading>
 
-      <Box w="100%" maxW="500px" ml={4}>
+      <Flex w="100%" maxW="600px" ml={4} align="center" gap={4}>
         <InputGroup flex="1" startElement={<CiSearch color="#A0AEC0" />}>
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search..."
+            placeholder={t("search")}
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSearch();
             }}
@@ -60,7 +63,9 @@ const Navbar = ({ username, searchQuery, setSearchQuery }: NavbarProps) => {
             _focus={{ borderColor: "#8a2be2", boxShadow: "0 0 0 1px #8a2be2" }}
           />
         </InputGroup>
-      </Box>
+        
+        <LanguageSwitcher />
+      </Flex>
     </Flex>
   );
 };

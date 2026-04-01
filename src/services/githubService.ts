@@ -2,6 +2,7 @@ import { api } from "./api";
 import { z } from "zod";
 import { userSchema } from "../schemas/user.schema";
 import { repoSchema } from "../schemas/repo.schema";
+import type { TFunction } from "i18next";
 
 const getUser = async (username: string) => {
   try {
@@ -28,12 +29,12 @@ export const getRepos = async (username: string, page = 1, sort = "updated") => 
   }
 };
 
-export const getRelativeTime = (date: string) => {
+export const getRelativeTime = (date: string, t: TFunction) => {
   const now = new Date();
   const updatedDate = new Date(date);
 
   const diffInSeconds = Math.floor(
-    (now.getTime() - updatedDate.getTime()) / 1000,
+    (now.getTime() - updatedDate.getTime()) / 1000
   );
 
   const minutes = Math.floor(diffInSeconds / 60);
@@ -41,12 +42,28 @@ export const getRelativeTime = (date: string) => {
   const days = Math.floor(diffInSeconds / 86400);
   const weeks = Math.floor(diffInSeconds / 604800);
 
-  if (diffInSeconds < 60) return "Updated just now";
-  if (minutes < 60) return `Updated ${minutes} minute(s) ago`;
-  if (hours < 24) return `Updated ${hours} hour(s) ago`;
-  if (days < 7) return `Updated ${days} day(s) ago`;
+  if (diffInSeconds < 60) return t("updated_now");
 
-  return `Updated ${weeks} week(s) ago`;
+  if (minutes < 60)
+    return t(
+      minutes === 1 ? "updated_minutes" : "updated_minutes_plural",
+      { count: minutes }
+    );
+
+  if (hours < 24)
+    return t(
+      hours === 1 ? "updated_hours" : "updated_hours_plural",
+      { count: hours }
+    );
+
+  if (days < 7)
+    return t(days === 1 ? "updated_days" : "updated_days_plural", {
+      count: days,
+    });
+
+  return t(weeks === 1 ? "updated_weeks" : "updated_weeks_plural", {
+    count: weeks,
+  });
 };
 
 const githubService = {

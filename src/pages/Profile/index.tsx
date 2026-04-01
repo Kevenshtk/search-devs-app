@@ -23,14 +23,7 @@ import Sidebar from "../../components/Sidebar";
 
 import { CiStar } from "react-icons/ci";
 
-const filters = createListCollection({
-  items: [
-    { label: "Recently updated", value: "updated" },
-    { label: "Recently created", value: "created" },
-    { label: "Recently pushed", value: "pushed" },
-    { label: "Name", value: "full_name" },
-  ],
-});
+import { useTranslation } from "react-i18next";
 
 const Profile = () => {
   const { username } = useParams();
@@ -46,6 +39,16 @@ const Profile = () => {
   const isFetching = useRef(false);
 
   const [value, setValue] = useState<string>("full_name");
+  const { t } = useTranslation();
+
+  const sorts = createListCollection({
+    items: [
+      { label: t("sortUpdated"), value: "updated" },
+      { label: t("sortCreated"), value: "created" },
+      { label: t("sortPushed"), value: "pushed" },
+      { label: t("sortName"), value: "full_name" },
+    ],
+  });
 
   const fetchRepos = async (username: string, page: number) => {
     if (loadingRepos || !hasMore) {
@@ -182,7 +185,7 @@ const Profile = () => {
           <Flex direction="column" gap={4}>
             <Flex justify="flex-end">
               <Select.Root
-                collection={filters}
+                collection={sorts}
                 width="240px"
                 value={value}
                 onValueChange={(e) => setValue(e.value[0])}
@@ -191,14 +194,12 @@ const Profile = () => {
                 shadow="sm"
               >
                 <Select.HiddenSelect />
-                <Select.Label display="none">Sort by:</Select.Label>
                 <Select.Control>
                   <Select.Trigger>
                     <Select.ValueText
                       placeholder={
-                        filters.items.filter(
-                          (filter) => filter.value === value,
-                        )[0]?.label || "Select sort"
+                        sorts.items.find((s) => s.value === value)
+                          ?.label || "Select sort"
                       }
                     />
                   </Select.Trigger>
@@ -209,9 +210,9 @@ const Profile = () => {
                 <Portal>
                   <Select.Positioner>
                     <Select.Content>
-                      {filters.items.map((filter) => (
-                        <Select.Item item={filter} key={filter.value}>
-                          {filter.label}
+                      {sorts.items.map((sort) => (
+                        <Select.Item item={sort} key={sort.value}>
+                          {sort.label}
                           <Select.ItemIndicator />
                         </Select.Item>
                       ))}
@@ -246,7 +247,7 @@ const Profile = () => {
                       <CiStar /> <Text>{repo.stargazers_count}</Text>
                       <Text mx={2}>•</Text>
                       <Text>
-                        Atualizado {githubService.relativeTime(repo.updated_at)}
+                        {githubService.relativeTime(repo.updated_at, t)}
                       </Text>
                     </Flex>
                   </Box>
@@ -261,7 +262,7 @@ const Profile = () => {
                   <Flex justify="center" align="center" gap={3} color="#8a2be2">
                     <Spinner size="sm" />
                     <Text fontWeight="medium" fontSize="sm">
-                      Loading more repos...
+                      {t("loadingRepos")}
                     </Text>
                   </Flex>
                 </Box>

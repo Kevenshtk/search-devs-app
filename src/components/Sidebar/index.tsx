@@ -1,4 +1,12 @@
-import { Box, Flex, Heading, Text, Button, Image } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Text,
+  Button,
+  Image,
+  Link,
+} from "@chakra-ui/react";
 
 import { FiUsers, FiMapPin, FiLink } from "react-icons/fi";
 import { CiMail, CiTwitter } from "react-icons/ci";
@@ -6,7 +14,11 @@ import { FaRegBuilding, FaRegHeart } from "react-icons/fa";
 
 import type { User } from "../../schemas/user.schema";
 
-const Sidebar = ({user}: { user: User | null }) => {
+import { useTranslation } from "react-i18next";
+
+const Sidebar = ({ user }: { user: User | null }) => {
+  const { t } = useTranslation();
+
   return (
     <Box
       bg="white"
@@ -18,7 +30,10 @@ const Sidebar = ({user}: { user: User | null }) => {
     >
       <Flex align="center" gap={4} mb={6}>
         <Image
-          src={user?.avatar_url || ""}
+          src={
+            user?.avatar_url ||
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9YMqXSb-5lcZxZ8d6SwiVPghe3XBi1b9QVaAkFoOI-g&s"
+          }
           alt={user?.name || "Avatar"}
           boxSize="60px"
           borderRadius="full"
@@ -42,10 +57,10 @@ const Sidebar = ({user}: { user: User | null }) => {
 
       <Flex direction="column" gap={3} mb={6}>
         <Flex align="center" gap={3} color="gray.600" fontSize="sm">
-          <FiUsers /> <Text>{user?.followers} seguidores</Text>
+          <FiUsers /> <Text>{user?.followers} {t("followers")}</Text>
         </Flex>
         <Flex align="center" gap={3} color="gray.600" fontSize="sm">
-          <FaRegHeart /> <Text>{user?.following} seguindo</Text>
+          <FaRegHeart /> <Text>{user?.following} {t("following")}</Text>
         </Flex>
       </Flex>
 
@@ -57,7 +72,7 @@ const Sidebar = ({user}: { user: User | null }) => {
         )}
         {user?.location && (
           <Flex align="center" gap={3} color="gray.600" fontSize="sm">
-            <FiMapPin  /> <Text>{user.location}</Text>
+            <FiMapPin /> <Text>{user.location}</Text>
           </Flex>
         )}
         {user?.email && (
@@ -68,24 +83,43 @@ const Sidebar = ({user}: { user: User | null }) => {
         {user?.blog && (
           <Flex align="center" gap={3} color="gray.600" fontSize="sm">
             <FiLink />
-            <a
+            <Link
               href={
                 user.blog.startsWith("http")
                   ? user.blog
                   : `https://${user.blog}`
               }
               target="_blank"
-              style={{ display: "block", maxWidth: "200px" }}
             >
-              <Text _hover={{ textDecoration: "underline" }} truncate>
+              <Text
+                color="gray.600"
+                _hover={{ textDecoration: "underline" }}
+                truncate
+              >
                 {user.blog}
               </Text>
-            </a>
+            </Link>
           </Flex>
         )}
         {user?.twitter_username && (
           <Flex align="center" gap={3} color="gray.600" fontSize="sm">
-            <CiTwitter /> <Text>@{user.twitter_username}</Text>
+            <CiTwitter />
+            <Link
+              href={
+                user.twitter_username.startsWith("http")
+                  ? user.twitter_username
+                  : `https://twitter.com/${user.twitter_username}`
+              }
+              target="_blank"
+            >
+              <Text
+                color="gray.600"
+                _hover={{ textDecoration: "underline" }}
+                truncate
+              >
+                @{user.twitter_username}
+              </Text>
+            </Link>
           </Flex>
         )}
       </Flex>
@@ -97,7 +131,7 @@ const Sidebar = ({user}: { user: User | null }) => {
         _hover={{ bg: "#7A22C9" }}
         borderRadius="md"
       >
-        Contato
+        {t("contact")}
       </Button>
     </Box>
   );
