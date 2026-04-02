@@ -1,6 +1,16 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Select, createListCollection, Portal } from "@chakra-ui/react";
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Flex,
+  Text,
+} from "@chakra-ui/react";
+
+import { FiChevronDown, FiCheck  } from "react-icons/fi";
 
 type SortSelectProps = {
   currentSort: string;
@@ -11,56 +21,58 @@ const SortSelect = ({ currentSort, setSortValue }: SortSelectProps) => {
   const { t } = useTranslation();
 
   const sorts = useMemo(
-    () =>
-      createListCollection({
-        items: [
-          { label: t("sort_updated"), value: "updated" },
-          { label: t("sort_created"), value: "created" },
-          { label: t("sort_pushed"), value: "pushed" },
-          { label: t("sort_name"), value: "full_name" },
-        ],
-      }),
+    () => [
+      { label: t("sort_updated"), value: "updated" },
+      { label: t("sort_created"), value: "created" },
+      { label: t("sort_pushed"), value: "pushed" },
+      { label: t("sort_name"), value: "full_name" },
+    ],
     [t],
   );
 
+  const selected = sorts.find((s) => s.value === currentSort);
+
   return (
-    <Select.Root
-      collection={sorts}
-      width="240px"
-      value={[currentSort]}
-      onValueChange={(e) => setSortValue(e.value[0])}
-      bg="white"
-      borderRadius="md"
-      border="none"
-      _focus={{ outline: "none", boxShadow: "none" }}
-    >
-      <Select.HiddenSelect />
-      <Select.Control>
-        <Select.Trigger>
-          <Select.ValueText
-            placeholder={
-              sorts.items.find((s) => s.value === currentSort)?.label ||
-              "Select sort"
-            }
-          />
-        </Select.Trigger>
-        <Select.IndicatorGroup>
-          <Select.Indicator />
-        </Select.IndicatorGroup>
-      </Select.Control>
-      <Portal>
-        <Select.Positioner>
-          <Select.Content>
-            {sorts.items.map((sort) => (
-              <Select.Item item={sort} key={sort.value}>
-                {sort.label}
-                <Select.ItemIndicator />
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select.Positioner>
-      </Portal>
-    </Select.Root>
+    <Menu placement="bottom-end">
+      <MenuButton
+        as={Button}
+        width="240px"
+        textAlign={"left"}
+        justifyContent="space-between"
+        rightIcon={<FiChevronDown />}
+        variant="outline"
+        bg="white"
+        borderColor="gray.300"
+        fontWeight="normal"
+        _hover={{ bg: "white", borderColor: "gray.400" }}
+        _expanded={{ bg: "white", borderColor: "gray.400" }}
+      >
+        {selected?.label ?? t("sort_name")}
+      </MenuButton>
+
+      <MenuList p={2} minW="240px" borderRadius="md" borderColor="gray.200">
+        {sorts.map((sort) => {
+          const isActive = sort.value === currentSort;
+
+          return (
+            <MenuItem
+              key={sort.value}
+              onClick={() => setSortValue(sort.value)}
+              borderRadius="md"
+              px={3}
+              py={2}
+              bg={isActive ? "gray.100" : "transparent"}
+              _hover={{ bg: "gray.100" }}
+            >
+              <Flex w="100%" justify="space-between" align="center">
+                <Text>{sort.label}</Text>
+                {isActive && <FiCheck size={16} />}
+              </Flex>
+            </MenuItem>
+          );
+        })}
+      </MenuList>
+    </Menu>
   );
 };
 

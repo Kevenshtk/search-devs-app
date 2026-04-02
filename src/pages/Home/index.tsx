@@ -8,6 +8,7 @@ import {
   Text,
   Input,
   Button,
+  InputLeftElement,
   InputGroup,
 } from "@chakra-ui/react";
 
@@ -65,7 +66,10 @@ const Home = () => {
         </Heading>
 
         <Flex gap={4}>
-          <InputGroup flex="1" startElement={<CiSearch color="#A0AEC0" />}>
+          <InputGroup flex="1">
+            <InputLeftElement pointerEvents="none" height="100%">
+              <CiSearch color="#A0AEC0" size="24px" />
+            </InputLeftElement>
             <Input
               aria-label={t("search")}
               value={userName}
