@@ -37,6 +37,7 @@ const Profile = () => {
   const isFetching = useRef(false);
 
   const [sortValue, setSortValue] = useState("full_name");
+  const [direction, setDirection] = useState("desc");
   const { t } = useTranslation();
 
   const loadingReposRef = useRef(false);
@@ -51,7 +52,7 @@ const Profile = () => {
   }, [hasMore]);
 
   const fetchRepos = useCallback(
-    async (username: string, page: number, sort: string) => {
+    async (username: string, page: number, sort: string, direction: string) => {
       if (loadingReposRef.current || !hasMoreRef.current) {
         isFetching.current = false;
         return;
@@ -62,7 +63,7 @@ const Profile = () => {
       isFetching.current = true;
 
       try {
-        const results = await githubService.repos(username, page, sort);
+        const results = await githubService.repos(username, page, sort, direction);
 
         const newRepos = results.data;
 
@@ -89,8 +90,8 @@ const Profile = () => {
 
   useEffect(() => {
     if (!username || page === 1) return;
-    fetchRepos(username, page, sortValue);
-  }, [page, username, sortValue, fetchRepos]);
+    fetchRepos(username, page, sortValue, direction);
+  }, [page, username, sortValue, direction, fetchRepos]);
 
   useEffect(() => {
     if (!username) return;
@@ -98,8 +99,8 @@ const Profile = () => {
     setPage(1);
     setHasMore(true);
     hasMoreRef.current = true;
-    fetchRepos(username, 1, sortValue);
-  }, [username, sortValue, fetchRepos]);
+    fetchRepos(username, 1, sortValue, direction);
+  }, [username, sortValue, direction, fetchRepos]);
 
   useEffect(() => {
     if (!username) return;
@@ -122,11 +123,11 @@ const Profile = () => {
       setHasMore(true);
       hasMoreRef.current = true;
 
-      await fetchRepos(username, 1, sortValue);
+      await fetchRepos(username, 1, sortValue, direction);
     };
 
     fetchData();
-  }, [username, sortValue, fetchRepos]);
+  }, [username, sortValue, direction, fetchRepos]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -178,7 +179,7 @@ const Profile = () => {
 
           <Flex direction="column" gap={4}>
             <Flex justify="flex-end">
-              <SortSelect currentSort={sortValue} setSortValue={setSortValue} />
+              <SortSelect currentSort={sortValue} setSortValue={setSortValue} direction={direction} setDirection={setDirection} />
             </Flex>
 
             <Box bg="#FFFFFF" borderRadius="md">

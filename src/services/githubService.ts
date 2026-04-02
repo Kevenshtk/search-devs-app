@@ -26,10 +26,11 @@ export const getRepos = async (
   username: string,
   page = 1,
   sort = "full_name",
+  direction = "desc",
 ): Promise<{ success: boolean; data: Repo[] }> => {
   try {
     const response = await api.get(
-      `/users/${username}/repos?page=${page}&per_page=10&sort=${sort}`,
+      `/users/${username}/repos?page=${page}&per_page=10&sort=${sort}&direction=${direction}`,
     );
 
     const parsedData = z.array(repoSchema).parse(response.data);
