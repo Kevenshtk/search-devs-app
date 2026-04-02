@@ -10,6 +10,7 @@ import {
   Spinner,
   Link,
 } from "@chakra-ui/react";
+import { Toaster, toast } from "sonner";
 
 import githubService from "../../services/githubService";
 
@@ -63,7 +64,16 @@ const Profile = () => {
       isFetching.current = true;
 
       try {
-        const results = await githubService.repos(username, page, sort, direction);
+        const results = await githubService.repos(
+          username,
+          page,
+          sort,
+          direction,
+        );
+
+        if (!results.success) {
+          throw new Error("Failed to fetch repos");
+        }
 
         const newRepos = results.data;
 
@@ -79,13 +89,14 @@ const Profile = () => {
         });
       } catch (err) {
         console.error(err);
+        toast.error(t("error_fetching_repos"));
       } finally {
         setLoadingRepos(false);
         loadingReposRef.current = false;
         isFetching.current = false;
       }
     },
-    [],
+    [t],
   );
 
   useEffect(() => {
@@ -160,6 +171,7 @@ const Profile = () => {
 
   return (
     <Box minH="100vh" bg="#FCFCFC">
+    <Toaster />
       <Navbar
         username={username}
         searchQuery={searchQuery}
@@ -179,7 +191,12 @@ const Profile = () => {
 
           <Flex direction="column" gap={4}>
             <Flex justify="flex-end">
-              <SortSelect currentSort={sortValue} setSortValue={setSortValue} direction={direction} setDirection={setDirection} />
+              <SortSelect
+                currentSort={sortValue}
+                setSortValue={setSortValue}
+                direction={direction}
+                setDirection={setDirection}
+              />
             </Flex>
 
             <Box bg="#FFFFFF" borderRadius="md">

@@ -29,6 +29,7 @@ const resources = {
       usernot_found: "No users found",
       usernot_foundDetail: "We couldn't find any user with this name",
       return_to_home: "Return to home",
+       error_fetching_repos: "Error fetching repos",
     },
   },
   pt: {
@@ -59,6 +60,7 @@ const resources = {
       usernot_foundDetail:
         "Não conseguimos encontrar nenhum usuário com esse nome",
       return_to_home: "Voltar para home",
+      error_fetching_repos: "Erro ao carregar repositórios",
     },
   },
 };
