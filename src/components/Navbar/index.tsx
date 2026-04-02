@@ -6,6 +6,7 @@ import {
   Text,
   Input,
   InputGroup,
+  InputLeftElement,
   Box,
   Grid,
 } from "@chakra-ui/react";
@@ -57,7 +58,10 @@ const Navbar = ({ username, searchQuery, setSearchQuery }: NavbarProps) => {
         </Heading>
 
         <Flex w="100%" align="center" gap={{ base: 2, md: 4 }}>
-          <InputGroup flex="1" startElement={<CiSearch color="#A0AEC0" />}>
+          <InputGroup flex="1">
+            <InputLeftElement pointerEvents="none">
+              <CiSearch color="#A0AEC0" />
+            </InputLeftElement>
             <Input
               aria-label={t("search")}
               value={searchQuery}

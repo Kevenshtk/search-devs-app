@@ -92,7 +92,6 @@ const Sidebar = ({ user }: { user: User | null }) => {
                 <Text
                   color="gray.600"
                   _hover={{ textDecoration: "underline" }}
-                  truncate
                 >
                   {user.blog}
                 </Text>
@@ -114,7 +113,6 @@ const Sidebar = ({ user }: { user: User | null }) => {
                 <Text
                   color="gray.600"
                   _hover={{ textDecoration: "underline" }}
-                  truncate
                 >
                   @{user.twitter_username}
                 </Text>
