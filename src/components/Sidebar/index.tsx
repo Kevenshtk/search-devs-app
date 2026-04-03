@@ -89,10 +89,7 @@ const Sidebar = ({ user }: { user: User | null }) => {
             <Flex align="center" gap={3} color="gray.600" fontSize="sm">
               <FiLink />
               <Link href={blogUrl} target="_blank" rel="noopener noreferrer">
-                <Text
-                  color="gray.600"
-                  _hover={{ textDecoration: "underline" }}
-                >
+                <Text color="gray.600" _hover={{ textDecoration: "underline" }}>
                   {user.blog}
                 </Text>
               </Link>
@@ -110,10 +107,7 @@ const Sidebar = ({ user }: { user: User | null }) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Text
-                  color="gray.600"
-                  _hover={{ textDecoration: "underline" }}
-                >
+                <Text color="gray.600" _hover={{ textDecoration: "underline" }}>
                   @{user.twitter_username}
                 </Text>
               </Link>
@@ -123,6 +117,7 @@ const Sidebar = ({ user }: { user: User | null }) => {
       </Box>
 
       <Button
+        display={{ base: "none", lg: "block" }}
         w="100%"
         bg="#8a2be2"
         color="white"

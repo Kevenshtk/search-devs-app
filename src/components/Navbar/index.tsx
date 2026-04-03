@@ -32,7 +32,7 @@ const Navbar = ({ username, searchQuery, setSearchQuery }: NavbarProps) => {
   };
 
   return (
-    <Box as="nav" bg="#FFFFFF" w="100%">
+    <Box as="nav" bg="#FFFFFF" w="100%" display={{ base: "none", lg: "block" }}>
       <Grid
         templateColumns={{ base: "1fr", lg: "300px 1fr" }}
         gap={8}
